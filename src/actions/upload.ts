@@ -3,6 +3,10 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import { uploadSchema } from "@/schemas/ocr";
 
+/**
+ * Upload scoresheet and return base64 data URL for OCR.
+ * Bypasses Supabase Storage to avoid RLS issues on dedicated Alem.Plus instance.
+ */
 export async function uploadScoresheet(formData: FormData): Promise<{ fileUrl: string; filePath: string } | { error: string }> {
   const file = formData.get("file") as File | null;
   if (!file) return { error: "No file provided" };
@@ -12,24 +16,16 @@ export async function uploadScoresheet(formData: FormData): Promise<{ fileUrl: s
     return { error: parsed.error.issues[0]?.message ?? "Invalid file" };
   }
 
+  // Auth check
   const supabase = await createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const ext = file.name.split(".").pop() ?? "jpg";
-  const filePath = `${user.id}/${Date.now()}.${ext}`;
+  // Convert file to base64 data URL for direct OCR API consumption
+  const bytes = await file.arrayBuffer();
+  const base64 = Buffer.from(bytes).toString("base64");
+  const mimeType = file.type || "image/jpeg";
+  const dataUrl = `data:${mimeType};base64,${base64}`;
 
-  const { error: uploadError } = await supabase.storage
-    .from("blanks")
-    .upload(filePath, file, { contentType: file.type });
-
-  if (uploadError) return { error: `Upload failed: ${uploadError.message}` };
-
-  const { data: urlData } = await supabase.storage
-    .from("blanks")
-    .createSignedUrl(filePath, 3600);
-
-  if (!urlData?.signedUrl) return { error: "Failed to generate URL" };
-
-  return { fileUrl: urlData.signedUrl, filePath };
+  return { fileUrl: dataUrl, filePath: `${user.id}/${file.name}` };
 }

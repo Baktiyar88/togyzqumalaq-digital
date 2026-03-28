@@ -1,6 +1,6 @@
 "use server";
 
-import { createServerSupabase } from "@/lib/supabase/server";
+import { createServerSupabase, createServiceClient } from "@/lib/supabase/server";
 import { createInitialState, executeMoveByPit } from "@/lib/game-engine/engine";
 import { toFen } from "@/lib/game-engine/fen";
 import { createGameSchema, searchGamesSchema } from "@/schemas/game";
@@ -32,7 +32,8 @@ export async function createGame(input: {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const { data, error } = await supabase
+  const db = createServiceClient();
+  const { data, error } = await db
     .from("games")
     .insert({
       tournament_id: input.tournamentId ?? null,
@@ -60,6 +61,10 @@ export async function saveMoves(
   }
 
   const supabase = await createServerSupabase();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const db = createServiceClient();
 
   // Validate moves by replaying through engine
   let state = createInitialState();
@@ -84,13 +89,13 @@ export async function saveMoves(
 
   if (moveRows.length === 0) return { error: "No valid moves to save" };
 
-  const { error } = await supabase.from("moves").insert(moveRows);
+  const { error } = await db.from("moves").insert(moveRows);
   if (error) return { error: `Failed to save moves: ${error.message}` };
 
   // Update game result if game ended
   if (state.isGameOver && state.winner) {
     const result = state.winner === "south" ? "white" : state.winner === "north" ? "black" : "draw";
-    await supabase.from("games").update({ result }).eq("id", gameId);
+    await db.from("games").update({ result }).eq("id", gameId);
   }
 
   return { success: true };
