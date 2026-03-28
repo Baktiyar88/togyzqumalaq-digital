@@ -1,8 +1,7 @@
 "use client";
 
 import { SegmentedControl } from "@mantine/core";
-import { IconLanguage } from "@tabler/icons-react";
-import { useState } from "react";
+import { useI18n } from "@/lib/i18n/context";
 
 const languages = [
   { label: "Қаз", value: "kk" },
@@ -11,14 +10,14 @@ const languages = [
 ];
 
 export function LanguageSwitch() {
-  const [value, setValue] = useState("kk");
+  const { locale, setLocale } = useI18n();
 
   return (
     <SegmentedControl
       size="xs"
       data={languages}
-      value={value}
-      onChange={setValue}
+      value={locale}
+      onChange={(v) => setLocale(v as "kk" | "ru" | "en")}
     />
   );
 }

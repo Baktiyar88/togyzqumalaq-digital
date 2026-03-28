@@ -8,6 +8,7 @@ import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { theme } from "@/lib/theme/theme";
 import { AppLayout } from "@/components/ui/app-shell";
+import { I18nProvider } from "@/lib/i18n/context";
 
 export const metadata: Metadata = {
   title: "Togyzqumalaq Digital",
@@ -31,7 +32,9 @@ export default function RootLayout({
       <body>
         <MantineProvider theme={theme} defaultColorScheme="dark">
           <Notifications position="top-right" />
-          <AppLayout>{children}</AppLayout>
+          <I18nProvider>
+            <AppLayout>{children}</AppLayout>
+          </I18nProvider>
         </MantineProvider>
       </body>
     </html>

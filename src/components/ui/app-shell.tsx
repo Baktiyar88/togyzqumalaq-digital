@@ -16,13 +16,14 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LanguageSwitch } from "./language-switch";
+import { useI18n } from "@/lib/i18n/context";
 import type { ReactNode } from "react";
 
-const navItems = [
-  { href: "/upload", label: "Upload", icon: IconUpload },
-  { href: "/manual", label: "Manual Entry", icon: IconEdit },
-  { href: "/archive", label: "Archive", icon: IconArchive },
-  { href: "/profile", label: "Profile", icon: IconUser },
+const navKeys = [
+  { href: "/upload", labelKey: "nav.upload", icon: IconUpload },
+  { href: "/manual", labelKey: "nav.manual", icon: IconEdit },
+  { href: "/archive", labelKey: "nav.archive", icon: IconArchive },
+  { href: "/profile", labelKey: "nav.profile", icon: IconUser },
 ];
 
 interface AppLayoutProps {
@@ -33,6 +34,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [opened, { toggle, close }] = useDisclosure();
   const pathname = usePathname();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const { t } = useI18n();
 
   const isAuthPage = pathname === "/login" || pathname === "/register";
   const isLanding = pathname === "/";
@@ -82,12 +84,12 @@ export function AppLayout({ children }: AppLayoutProps) {
       </AppShell.Header>
 
       <AppShell.Navbar p="md">
-        {navItems.map((item) => (
+        {navKeys.map((item) => (
           <NavLink
             key={item.href}
             component={Link}
             href={item.href}
-            label={item.label}
+            label={t(item.labelKey)}
             leftSection={<item.icon size={20} />}
             active={pathname === item.href || pathname.startsWith(item.href + "/")}
             onClick={close}
