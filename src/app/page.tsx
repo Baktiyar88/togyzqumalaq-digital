@@ -9,7 +9,9 @@ import {
   IconSun, IconMoon, IconArrowRight, IconBrandGithub,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { LanguageSwitch } from "@/components/ui/language-switch";
+import { createClient } from "@/lib/supabase/client";
 
 const features = [
   { icon: IconScan, title: "AI OCR Recognition", description: "Upload photos of handwritten scoresheets — DeepSeek OCR extracts moves automatically with confidence scoring" },
@@ -27,6 +29,14 @@ const stats = [
 
 export default function HomePage() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setIsLoggedIn(!!data.user);
+    });
+  }, []);
 
   return (
     <Box>
@@ -41,8 +51,14 @@ export default function HomePage() {
           <ActionIcon variant="subtle" size="lg" onClick={toggleColorScheme}>
             {colorScheme === "dark" ? <IconSun size={18} /> : <IconMoon size={18} />}
           </ActionIcon>
-          <Button component={Link} href="/login" variant="subtle" size="sm">Sign In</Button>
-          <Button component={Link} href="/register" size="sm">Sign Up</Button>
+          {isLoggedIn ? (
+            <Button component={Link} href="/upload" size="sm">Dashboard</Button>
+          ) : (
+            <>
+              <Button component={Link} href="/login" variant="subtle" size="sm">Sign In</Button>
+              <Button component={Link} href="/register" size="sm">Sign Up</Button>
+            </>
+          )}
         </Group>
       </Group>
 

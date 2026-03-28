@@ -14,9 +14,10 @@ import {
   IconLogout,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LanguageSwitch } from "./language-switch";
 import { useI18n } from "@/lib/i18n/context";
+import { createClient } from "@/lib/supabase/client";
 import type { ReactNode } from "react";
 
 const navKeys = [
@@ -35,6 +36,14 @@ export function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const { t } = useI18n();
+  const router = useRouter();
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  }
 
   const isAuthPage = pathname === "/login" || pathname === "/register";
   const isLanding = pathname === "/";
@@ -97,6 +106,16 @@ export function AppLayout({ children }: AppLayoutProps) {
             mb={4}
           />
         ))}
+
+        <NavLink
+          label={t("nav.logout")}
+          leftSection={<IconLogout size={20} />}
+          onClick={handleLogout}
+          variant="subtle"
+          color="red"
+          mt="auto"
+          style={{ borderRadius: 12 }}
+        />
       </AppShell.Navbar>
 
       <AppShell.Main id="main-content" role="main">{children}</AppShell.Main>

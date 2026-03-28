@@ -120,6 +120,9 @@ export async function getGame(gameId: string) {
 export async function searchGames(query: {
   opponent?: string;
   tournament?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  result?: "white" | "black" | "draw" | "ongoing";
   page?: number;
   limit?: number;
 }) {
@@ -149,6 +152,18 @@ export async function searchGames(query: {
     q = q.ilike("notes", `%${parsed.data.tournament}%`);
   }
 
+  if (parsed.data.dateFrom) {
+    q = q.gte("date_played", parsed.data.dateFrom);
+  }
+
+  if (parsed.data.dateTo) {
+    q = q.lte("date_played", parsed.data.dateTo);
+  }
+
+  if (parsed.data.result) {
+    q = q.eq("result", parsed.data.result);
+  }
+
   const { data, count, error } = await q;
   if (error) return { games: [], total: 0 };
 
@@ -164,4 +179,17 @@ export async function exportGameFen(gameId: string): Promise<{ fen: string } | {
   );
 
   return { fen: fenLines.join("\n") };
+}
+
+export async function exportGameJson(gameId: string): Promise<{ json: string } | { error: string }> {
+  const result = await getGame(gameId);
+  if ("error" in result) return { error: result.error as string };
+
+  const payload = {
+    game: result.game,
+    moves: result.moves,
+    exportedAt: new Date().toISOString(),
+  };
+
+  return { json: JSON.stringify(payload, null, 2) };
 }

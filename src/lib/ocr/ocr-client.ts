@@ -1,8 +1,6 @@
 import type { OcrResult } from "./types";
 import { parseMoves } from "./move-parser";
-
-const OCR_URL = process.env.DEEPSEEK_OCR_URL ?? "https://llm.alem.ai/v1/chat/completions";
-const OCR_KEY = process.env.DEEPSEEK_OCR_API_KEY ?? "";
+import { getDefaultModel } from "./ocr-models.config";
 
 const SYSTEM_PROMPT = `You are an OCR system specialized in reading togyzqumalaq tournament scoresheets.
 Extract all moves from the scoresheet image.
@@ -22,17 +20,19 @@ Rules:
 - Return empty moves array if nothing is readable`;
 
 export async function recognizeScoresheet(imageUrl: string): Promise<OcrResult> {
+  const model = getDefaultModel();
+  const apiKey = process.env[model.apiKeyEnv] ?? "";
   const startTime = Date.now();
 
-  const response = await fetch(OCR_URL, {
+  const response = await fetch(model.endpoint, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${OCR_KEY}`,
+      "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "deepseek-ocr",
-      temperature: 0,
+      model: model.id,
+      temperature: model.temperature,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         {

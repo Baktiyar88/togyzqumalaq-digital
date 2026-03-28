@@ -69,7 +69,7 @@ export default function ProfilePage() {
         <form onSubmit={form.onSubmit(handleSave)}>
           <Stack gap="md">
             <Group>
-              <Avatar size="xl" radius="xl" color="indigo">
+              <Avatar size="xl" radius="xl" color="indigo" src={profile?.avatar_url ?? undefined}>
                 <IconUser size={32} />
               </Avatar>
               <div>
@@ -77,6 +77,37 @@ export default function ProfilePage() {
                 <Text size="sm" c="dimmed">{profile?.role}</Text>
               </div>
             </Group>
+
+            <FileInput
+              label="Avatar"
+              placeholder="Upload avatar image"
+              accept="image/png,image/jpeg,image/webp"
+              leftSection={<IconUpload size={16} />}
+              onChange={async (file) => {
+                if (!file || !profile) return;
+                const ext = file.name.split(".").pop() ?? "png";
+                const path = `${profile.id}/avatar.${ext}`;
+                const { error: uploadError } = await supabase.storage
+                  .from("avatars")
+                  .upload(path, file, { upsert: true });
+                if (uploadError) {
+                  notifications.show({ title: "Upload failed", message: uploadError.message, color: "red" });
+                  return;
+                }
+                const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+                const avatarUrl = urlData.publicUrl;
+                const { error: updateError } = await supabase
+                  .from("profiles")
+                  .update({ avatar_url: avatarUrl })
+                  .eq("id", profile.id);
+                if (updateError) {
+                  notifications.show({ title: "Update failed", message: updateError.message, color: "red" });
+                  return;
+                }
+                setProfile({ ...profile, avatar_url: avatarUrl });
+                notifications.show({ title: "Avatar updated", message: "Your avatar has been changed", color: "green" });
+              }}
+            />
 
             <TextInput label="Display Name" required {...form.getInputProps("display_name")} />
             <TextInput label="Club" placeholder="Your club (optional)" {...form.getInputProps("club")} />

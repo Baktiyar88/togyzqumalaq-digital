@@ -7,6 +7,7 @@ import { notifications } from "@mantine/notifications";
 import { IconLogin } from "@tabler/icons-react";
 import Link from "next/link";
 import { serverLogin } from "@/actions/auth";
+import { AltchaWidget } from "@/components/ui/altcha-widget";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -45,6 +46,7 @@ export default function LoginPage() {
           <Stack gap="md">
             <TextInput label="Email" placeholder="your@email.com" required {...form.getInputProps("email")} />
             <PasswordInput label="Password" placeholder="••••••••" required {...form.getInputProps("password")} />
+            <AltchaWidget onVerify={() => {}} />
             <Button type="submit" fullWidth loading={loading} leftSection={<IconLogin size={16} />}>
               Sign In
             </Button>

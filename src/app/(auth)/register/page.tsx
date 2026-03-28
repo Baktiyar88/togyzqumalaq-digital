@@ -7,6 +7,7 @@ import { notifications } from "@mantine/notifications";
 import { IconUserPlus } from "@tabler/icons-react";
 import Link from "next/link";
 import { serverRegister } from "@/actions/auth";
+import { AltchaWidget } from "@/components/ui/altcha-widget";
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
@@ -56,6 +57,7 @@ export default function RegisterPage() {
               ]}
               {...form.getInputProps("locale")}
             />
+            <AltchaWidget onVerify={() => {}} />
             <Button type="submit" fullWidth loading={loading} leftSection={<IconUserPlus size={16} />}>
               Create Account
             </Button>

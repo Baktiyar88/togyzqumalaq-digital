@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Container, Title, Stack, TextInput, Group, Table, Badge, ActionIcon, Tooltip, Pagination, Card, Text, FileInput, Button } from "@mantine/core";
+import { Container, Title, Stack, TextInput, Group, Table, Badge, ActionIcon, Tooltip, Pagination, Card, Text, FileInput, Button, Select } from "@mantine/core";
+import { DatePickerInput } from "@mantine/dates";
 import { IconSearch, IconPlayerPlay, IconFileExport, IconFileImport } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import Link from "next/link";
 import { searchGames } from "@/actions/games";
 import { importFenFile } from "@/actions/fen-import";
 import type { Game } from "@/lib/supabase/types";
+import type { GameResult } from "@/lib/supabase/types";
 
 const resultColors: Record<string, string> = {
   white: "blue",
@@ -21,9 +23,17 @@ export default function ArchivePage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
+  const [dateFrom, setDateFrom] = useState<Date | null>(null);
+  const [dateTo, setDateTo] = useState<Date | null>(null);
+  const [resultFilter, setResultFilter] = useState<GameResult | null>(null);
   const [loading, setLoading] = useState(false);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function toIsoDate(d: Date | null): string | undefined {
+    if (!d) return undefined;
+    return d.toISOString().split("T")[0];
+  }
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -31,7 +41,13 @@ export default function ArchivePage() {
     debounceRef.current = setTimeout(() => {
       async function load() {
         setLoading(true);
-        const result = await searchGames({ tournament: query || undefined, page });
+        const result = await searchGames({
+          tournament: query || undefined,
+          dateFrom: toIsoDate(dateFrom),
+          dateTo: toIsoDate(dateTo),
+          result: resultFilter ?? undefined,
+          page,
+        });
         setGames(result.games);
         setTotal(result.total);
         setLoading(false);
@@ -42,7 +58,7 @@ export default function ArchivePage() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [page, query]);
+  }, [page, query, dateFrom, dateTo, resultFilter]);
 
   const totalPages = Math.ceil(total / 20);
 
@@ -77,6 +93,36 @@ export default function ArchivePage() {
           onChange={(e) => { setQuery(e.currentTarget.value); setPage(1); }}
           size="md"
         />
+
+        <Group grow>
+          <DatePickerInput
+            label="From"
+            placeholder="Start date"
+            value={dateFrom}
+            onChange={(v) => { setDateFrom(v); setPage(1); }}
+            clearable
+          />
+          <DatePickerInput
+            label="To"
+            placeholder="End date"
+            value={dateTo}
+            onChange={(v) => { setDateTo(v); setPage(1); }}
+            clearable
+          />
+          <Select
+            label="Result"
+            placeholder="All results"
+            data={[
+              { value: "white", label: "White win" },
+              { value: "black", label: "Black win" },
+              { value: "draw", label: "Draw" },
+              { value: "ongoing", label: "Ongoing" },
+            ]}
+            value={resultFilter}
+            onChange={(v) => { setResultFilter(v as GameResult | null); setPage(1); }}
+            clearable
+          />
+        </Group>
 
         {games.length === 0 && !loading ? (
           <Card padding="xl" withBorder>
