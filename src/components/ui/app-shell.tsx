@@ -69,7 +69,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <IconChessKnight size={28} color="var(--mantine-color-indigo-5)" />
             <Text
               component={Link}
-              href="/"
+              href="/upload"
               fw={700}
               size="lg"
               style={{ textDecoration: "none", color: "inherit" }}

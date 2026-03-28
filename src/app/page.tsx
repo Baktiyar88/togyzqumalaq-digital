@@ -6,29 +6,19 @@ import {
 } from "@mantine/core";
 import {
   IconUpload, IconEdit, IconArchive, IconScan, IconChessKnight,
-  IconSun, IconMoon, IconArrowRight, IconBrandGithub,
+  IconSun, IconMoon, IconArrowRight,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LanguageSwitch } from "@/components/ui/language-switch";
+import { useI18n } from "@/lib/i18n/context";
 import { createClient } from "@/lib/supabase/client";
 
-const features = [
-  { icon: IconScan, title: "AI OCR Recognition", description: "Upload photos of handwritten scoresheets — DeepSeek OCR extracts moves automatically with confidence scoring" },
-  { icon: IconEdit, title: "Manual Move Entry", description: "Enter moves step-by-step with interactive board visualization and real-time rule validation" },
-  { icon: IconArchive, title: "Game Archive", description: "Search, filter, and replay your digitized games with FEN export in TXT, JSON, and PDF formats" },
-  { icon: IconUpload, title: "Batch Processing", description: "Arbiters can upload up to 20 scoresheets at once with parallel OCR and individual progress tracking" },
-];
-
-const stats = [
-  { value: "162", label: "stones per game" },
-  { value: "18", label: "pits on the board" },
-  { value: "3", label: "languages supported" },
-  { value: "< 2min", label: "to digitize a game" },
-];
+const featureIcons = [IconScan, IconEdit, IconArchive, IconUpload];
 
 export default function HomePage() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const { t } = useI18n();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -37,6 +27,20 @@ export default function HomePage() {
       setIsLoggedIn(!!data.user);
     });
   }, []);
+
+  const features = [
+    { icon: IconScan, title: t("landing.feature1_title"), description: t("landing.feature1_desc") },
+    { icon: IconEdit, title: t("landing.feature2_title"), description: t("landing.feature2_desc") },
+    { icon: IconArchive, title: t("landing.feature3_title"), description: t("landing.feature3_desc") },
+    { icon: IconUpload, title: t("landing.feature4_title"), description: t("landing.feature4_desc") },
+  ];
+
+  const stats = [
+    { value: "162", label: t("landing.stat1") },
+    { value: "18", label: t("landing.stat2") },
+    { value: "3", label: t("landing.stat3") },
+    { value: "< 2min", label: t("landing.stat4") },
+  ];
 
   return (
     <Box>
@@ -52,11 +56,11 @@ export default function HomePage() {
             {colorScheme === "dark" ? <IconSun size={18} /> : <IconMoon size={18} />}
           </ActionIcon>
           {isLoggedIn ? (
-            <Button component={Link} href="/upload" size="sm">Dashboard</Button>
+            <Button component={Link} href="/upload" size="sm">{t("landing.dashboard")}</Button>
           ) : (
             <>
-              <Button component={Link} href="/login" variant="subtle" size="sm">Sign In</Button>
-              <Button component={Link} href="/register" size="sm">Sign Up</Button>
+              <Button component={Link} href="/login" variant="subtle" size="sm">{t("nav.login")}</Button>
+              <Button component={Link} href="/register" size="sm">{t("nav.register")}</Button>
             </>
           )}
         </Group>
@@ -65,10 +69,10 @@ export default function HomePage() {
       {/* Hero */}
       <Container size="lg" py={80}>
         <Stack align="center" gap="xl">
-          <Badge size="lg" variant="light" color="indigo">Decentrathon 5.0 Hackathon</Badge>
+          <Badge size="lg" variant="light" color="indigo">Decentrathon 5.0</Badge>
 
           <Title order={1} ta="center" fz={{ base: 40, md: 60 }} fw={700} lh={1.1}>
-            Цифровое наследие
+            {t("landing.hero_title")}
             <br />
             <Text span c="indigo" inherit>
               Тоғызқұмалақ
@@ -76,19 +80,17 @@ export default function HomePage() {
           </Title>
 
           <Text size="xl" c="dimmed" ta="center" maw={650} lh={1.6}>
-            AI-powered platform for digitizing tournament scoresheets
-            and generating FEN notation for the ancient Kazakh board game.
-            Upload a photo — get a digital record in seconds.
+            {t("landing.hero_subtitle")}
           </Text>
 
           <Group mt="md">
             <Button
               component={Link}
-              href="/register"
+              href={isLoggedIn ? "/upload" : "/register"}
               size="xl"
               rightSection={<IconArrowRight size={20} />}
             >
-              Get Started
+              {t("landing.cta_start")}
             </Button>
             <Button
               component={Link}
@@ -97,7 +99,7 @@ export default function HomePage() {
               variant="light"
               leftSection={<IconEdit size={20} />}
             >
-              Try the Board
+              {t("landing.cta_board")}
             </Button>
           </Group>
         </Stack>
@@ -120,14 +122,12 @@ export default function HomePage() {
       {/* Features */}
       <Container size="lg" py={80}>
         <Stack align="center" gap="xl">
-          <Title order={2} ta="center">How It Works</Title>
-          <Text c="dimmed" ta="center" maw={500}>
-            From paper scoresheet to digital archive in four simple steps
-          </Text>
+          <Title order={2} ta="center">{t("landing.how_title")}</Title>
+          <Text c="dimmed" ta="center" maw={500}>{t("landing.how_subtitle")}</Text>
 
           <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xl" mt="lg">
             {features.map((f, i) => (
-              <Card key={f.title} padding="xl" withBorder radius="lg">
+              <Card key={i} padding="xl" withBorder radius="lg">
                 <Group gap="lg" align="flex-start">
                   <ThemeIcon size={56} radius="lg" variant="light" color="indigo">
                     <f.icon size={28} />
@@ -152,13 +152,9 @@ export default function HomePage() {
         <Group justify="space-between">
           <Group gap="sm">
             <IconChessKnight size={20} color="var(--mantine-color-dimmed)" />
-            <Text size="sm" c="dimmed">
-              Togyzqumalaq Digital — Decentrathon 5.0
-            </Text>
+            <Text size="sm" c="dimmed">Togyzqumalaq Digital — Decentrathon 5.0</Text>
           </Group>
-          <Text size="sm" c="dimmed">
-            Built with Next.js, Mantine UI, Supabase, DeepSeek OCR
-          </Text>
+          <Text size="sm" c="dimmed">Next.js + Mantine UI + Supabase + DeepSeek OCR</Text>
         </Group>
       </Container>
     </Box>

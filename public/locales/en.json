@@ -8,5 +8,26 @@
   "archive": { "title": "Game Archive", "search": "Search", "opponent": "Opponent", "tournament": "Tournament", "date": "Date", "result": "Result" },
   "game": { "replay": "Replay", "export": "Export", "fen": "FEN", "first": "First", "prev": "Previous", "next": "Next", "last": "Last" },
   "auth": { "email": "Email", "password": "Password", "name": "Name", "club": "Club", "language": "Language" },
-  "common": { "save": "Save", "cancel": "Cancel", "delete": "Delete", "loading": "Loading...", "error": "Error", "success": "Success" }
+  "common": { "save": "Save", "cancel": "Cancel", "delete": "Delete", "loading": "Loading...", "error": "Error", "success": "Success" },
+  "landing": {
+    "dashboard": "Dashboard",
+    "hero_title": "Digital Heritage",
+    "hero_subtitle": "AI-powered platform for digitizing tournament scoresheets and generating FEN notation for the ancient Kazakh board game. Upload a photo — get a digital record in seconds.",
+    "cta_start": "Get Started",
+    "cta_board": "Try the Board",
+    "how_title": "How It Works",
+    "how_subtitle": "From paper scoresheet to digital archive in four simple steps",
+    "feature1_title": "AI OCR Recognition",
+    "feature1_desc": "Upload photos of handwritten scoresheets — DeepSeek OCR extracts moves automatically with confidence scoring",
+    "feature2_title": "Manual Move Entry",
+    "feature2_desc": "Enter moves step-by-step with interactive board visualization and real-time rule validation",
+    "feature3_title": "Game Archive",
+    "feature3_desc": "Search, filter, and replay your digitized games with FEN export in TXT and JSON formats",
+    "feature4_title": "Batch Processing",
+    "feature4_desc": "Arbiters can upload up to 20 scoresheets at once with parallel OCR and individual progress tracking",
+    "stat1": "stones per game",
+    "stat2": "pits on the board",
+    "stat3": "languages supported",
+    "stat4": "to digitize a game"
+  }
 }
