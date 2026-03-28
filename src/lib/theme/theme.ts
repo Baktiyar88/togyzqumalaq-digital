@@ -21,9 +21,32 @@ export const theme = createTheme({
   defaultRadius: "md",
   cursorType: "pointer",
   components: {
-    Button: { defaultProps: { radius: "md" } },
-    Card: { defaultProps: { radius: "lg", withBorder: true } },
+    Button: {
+      defaultProps: { radius: "xl" },
+      styles: {
+        root: {
+          transition: "all 200ms ease",
+          "&:hover": { transform: "translateY(-1px)" },
+        },
+      },
+    },
+    Card: {
+      defaultProps: { radius: "lg", withBorder: true },
+      styles: {
+        root: {
+          transition: "box-shadow 200ms ease, transform 200ms ease",
+          "&:hover": {
+            boxShadow: "0 8px 32px rgba(99, 102, 241, 0.1)",
+          },
+        },
+      },
+    },
     TextInput: { defaultProps: { radius: "md" } },
+    PasswordInput: { defaultProps: { radius: "md" } },
     Select: { defaultProps: { radius: "md" } },
+    Badge: { defaultProps: { radius: "xl" } },
+    ActionIcon: { defaultProps: { radius: "lg" } },
+    NavLink: { defaultProps: { style: { borderRadius: 12 } } },
+    Notification: { defaultProps: { radius: "lg" } },
   },
 });

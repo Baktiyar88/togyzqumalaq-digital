@@ -1,6 +1,7 @@
 "use client";
 
-import { Card, Group, Stack, Text, Badge } from "@mantine/core";
+import { Card, Group, Stack, Text, Badge, Box, Divider } from "@mantine/core";
+import { motion, AnimatePresence } from "motion/react";
 import { Pit } from "./pit";
 import type { GameState } from "@/lib/game-engine/types";
 import { stonesAt } from "@/lib/game-engine/board";
@@ -11,29 +12,77 @@ interface BoardProps {
   onPitClick?: (index: number) => void;
 }
 
+function AnimatedScore({ value, label }: { value: number; label: string }) {
+  return (
+    <motion.div
+      key={value}
+      initial={{ scale: 1.3, color: "var(--mantine-color-indigo-4)" }}
+      animate={{ scale: 1, color: "var(--mantine-color-indigo-6)" }}
+      transition={{ type: "spring", stiffness: 300, damping: 15 }}
+    >
+      <Text size="xl" fw={800} c="indigo" ta="center" aria-label={`${label} score: ${value}`}>
+        {value}
+      </Text>
+    </motion.div>
+  );
+}
+
 export function Board({ state, onPitClick }: BoardProps) {
   const validIndices = new Set(validMoves(state));
-
-  // North pits: 17(A2) 16(B2) 15(C2) 14(D2) 13(E2) 12(F2) 11(G2) 10(H2) 9(I2)
-  // South pits: 0(A1) 1(B1) 2(C1) 3(D1) 4(E1) 5(F1) 6(G1) 7(H1) 8(I1)
   const northIndices = [17, 16, 15, 14, 13, 12, 11, 10, 9];
   const southIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
   return (
-    <Card padding="lg" radius="lg" withBorder style={{ background: "var(--mantine-color-dark-7)" }}>
-      <Stack gap="md">
-        {/* North label + score */}
-        <Group justify="space-between">
-          <Badge color={state.currentSide === "north" ? "indigo" : "dark"} size="lg" variant="light">
-            North {state.currentSide === "north" ? "(to move)" : ""}
-          </Badge>
-          <Text size="xl" fw={700} c="indigo">
-            {state.score.north}
-          </Text>
+    <Card
+      padding="lg"
+      radius="xl"
+      withBorder
+      aria-label="Togyzqumalaq game board"
+      style={{
+        background: "linear-gradient(180deg, var(--mantine-color-dark-8) 0%, var(--mantine-color-dark-7) 50%, var(--mantine-color-dark-8) 100%)",
+        backgroundImage: "url(/board/togyzkumalak_wood_board_mini.png)",
+        backgroundSize: "cover",
+        backgroundBlendMode: "overlay",
+        border: "2px solid var(--mantine-color-dark-4)",
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      {/* Subtle inner glow */}
+      <Box
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.05) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
+
+      <Stack gap="md" style={{ position: "relative" }}>
+        {/* North side */}
+        <Group justify="space-between" align="center">
+          <motion.div
+            animate={{
+              boxShadow: state.currentSide === "north"
+                ? "0 0 20px rgba(99,102,241,0.4)"
+                : "none",
+            }}
+            style={{ borderRadius: 20 }}
+          >
+            <Badge
+              color={state.currentSide === "north" ? "indigo" : "dark"}
+              size="lg"
+              variant={state.currentSide === "north" ? "filled" : "light"}
+              radius="xl"
+            >
+              {state.currentSide === "north" ? "▶ North" : "North"}
+            </Badge>
+          </motion.div>
+          <AnimatedScore value={state.score.north} label="North" />
         </Group>
 
         {/* North pits */}
-        <Group gap="xs" justify="center">
+        <Group gap={4} justify="center" wrap="nowrap" style={{ overflowX: "auto" }}>
           {northIndices.map((idx, i) => (
             <Pit
               key={idx}
@@ -49,13 +98,19 @@ export function Board({ state, onPitClick }: BoardProps) {
           ))}
         </Group>
 
-        {/* Divider with kazan labels */}
-        <Group justify="center" gap="xl">
-          <Text size="sm" c="dimmed">Kazans: South {state.score.south} — North {state.score.north}</Text>
-        </Group>
+        {/* Center divider — kazans */}
+        <Divider
+          label={
+            <Text size="sm" fw={600} c="dimmed">
+              ☰ Kazan: {state.score.south} — {state.score.north} ☰
+            </Text>
+          }
+          labelPosition="center"
+          color="dark.4"
+        />
 
         {/* South pits */}
-        <Group gap="xs" justify="center">
+        <Group gap={4} justify="center" wrap="nowrap" style={{ overflowX: "auto" }}>
           {southIndices.map((idx) => (
             <Pit
               key={idx}
@@ -71,22 +126,50 @@ export function Board({ state, onPitClick }: BoardProps) {
           ))}
         </Group>
 
-        {/* South label + score */}
-        <Group justify="space-between">
-          <Badge color={state.currentSide === "south" ? "indigo" : "dark"} size="lg" variant="light">
-            South {state.currentSide === "south" ? "(to move)" : ""}
-          </Badge>
-          <Text size="xl" fw={700} c="indigo">
-            {state.score.south}
-          </Text>
+        {/* South side */}
+        <Group justify="space-between" align="center">
+          <motion.div
+            animate={{
+              boxShadow: state.currentSide === "south"
+                ? "0 0 20px rgba(99,102,241,0.4)"
+                : "none",
+            }}
+            style={{ borderRadius: 20 }}
+          >
+            <Badge
+              color={state.currentSide === "south" ? "indigo" : "dark"}
+              size="lg"
+              variant={state.currentSide === "south" ? "filled" : "light"}
+              radius="xl"
+            >
+              {state.currentSide === "south" ? "▶ South" : "South"}
+            </Badge>
+          </motion.div>
+          <AnimatedScore value={state.score.south} label="South" />
         </Group>
 
-        {/* Game over */}
-        {state.isGameOver && (
-          <Badge color="green" size="xl" fullWidth variant="filled">
-            {state.winner === "draw" ? "Draw!" : `${state.winner === "south" ? "South" : "North"} wins!`}
-          </Badge>
-        )}
+        {/* Game over overlay */}
+        <AnimatePresence>
+          {state.isGameOver && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            >
+              <Badge
+                color="green"
+                size="xl"
+                fullWidth
+                variant="filled"
+                radius="lg"
+                style={{ padding: "12px 0", fontSize: 18 }}
+              >
+                {state.winner === "draw" ? "🤝 Draw!" : `🏆 ${state.winner === "south" ? "South" : "North"} wins!`}
+              </Badge>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Stack>
     </Card>
   );

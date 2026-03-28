@@ -9,6 +9,7 @@ import { Notifications } from "@mantine/notifications";
 import { theme } from "@/lib/theme/theme";
 import { AppLayout } from "@/components/ui/app-shell";
 import { I18nProvider } from "@/lib/i18n/context";
+import { SkipLink } from "@/components/ui/skip-link";
 
 export const metadata: Metadata = {
   title: "Togyzqumalaq Digital",
@@ -30,6 +31,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <SkipLink />
         <MantineProvider theme={theme} defaultColorScheme="dark">
           <Notifications position="top-right" />
           <I18nProvider>
