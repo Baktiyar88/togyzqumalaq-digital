@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Container, Title, Stack, Stepper, Alert } from "@mantine/core";
+import { Container, Title, Stack, Stepper, Alert, Tabs } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconUpload, IconScan, IconCheck, IconAlertTriangle } from "@tabler/icons-react";
+import { IconUpload, IconScan, IconCheck, IconAlertTriangle, IconFiles } from "@tabler/icons-react";
+import { BatchUpload } from "@/components/ocr/batch-upload";
 import { UploadZone } from "@/components/ocr/upload-zone";
 import { OcrProgress } from "@/components/ocr/ocr-progress";
 import { OcrResults } from "@/components/ocr/ocr-results";
@@ -94,6 +95,25 @@ export default function UploadPage() {
       <Stack gap="xl">
         <Title order={2}>Upload Scoresheet</Title>
 
+        <Tabs defaultValue="single" variant="pills">
+          <Tabs.List mb="lg">
+            <Tabs.Tab value="single" leftSection={<IconUpload size={16} />}>Single</Tabs.Tab>
+            <Tabs.Tab value="batch" leftSection={<IconFiles size={16} />}>Batch (up to 20)</Tabs.Tab>
+          </Tabs.List>
+
+          <Tabs.Panel value="batch">
+            <BatchUpload onProcessFile={async (file) => {
+              const formData = new FormData();
+              formData.append("file", file);
+              const uploadResult = await uploadScoresheet(formData);
+              if ("error" in uploadResult) throw new Error(uploadResult.error);
+              const ocrResult = await triggerOCR(uploadResult.fileUrl);
+              if ("error" in ocrResult) throw new Error(ocrResult.error);
+            }} />
+          </Tabs.Panel>
+
+          <Tabs.Panel value="single">
+
         <Stepper active={activeStep} size="sm">
           <Stepper.Step label="Upload" icon={<IconUpload size={16} />} />
           <Stepper.Step label="OCR" icon={<IconScan size={16} />} />
@@ -118,6 +138,9 @@ export default function UploadPage() {
         )}
 
         {step === "done" && <FenDisplay fen={fenResult} label="Game FEN Sequence" />}
+
+          </Tabs.Panel>
+        </Tabs>
       </Stack>
     </Container>
   );

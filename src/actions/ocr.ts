@@ -4,10 +4,25 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { recognizeScoresheet } from "@/lib/ocr/ocr-client";
 import type { ParsedMove } from "@/lib/ocr/types";
 
+const OCR_RATE_LIMIT = 60; // per hour per user
+const OCR_RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
 export async function triggerOCR(fileUrl: string): Promise<{ jobId: string; moves: ParsedMove[]; confidence: number } | { error: string }> {
   const supabase = await createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+
+  // Rate limit check: count OCR jobs in last hour
+  const oneHourAgo = new Date(Date.now() - OCR_RATE_WINDOW_MS).toISOString();
+  const { count } = await supabase
+    .from("ocr_jobs")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .gte("created_at", oneHourAgo);
+
+  if (count !== null && count >= OCR_RATE_LIMIT) {
+    return { error: `Rate limit exceeded. Maximum ${OCR_RATE_LIMIT} OCR requests per hour.` };
+  }
 
   // Create OCR job
   const { data: job, error: jobError } = await supabase

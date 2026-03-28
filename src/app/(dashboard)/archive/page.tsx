@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Container, Title, Stack, TextInput, Group, Table, Badge, ActionIcon, Tooltip, Pagination, Card, Text } from "@mantine/core";
-import { IconSearch, IconPlayerPlay, IconFileExport } from "@tabler/icons-react";
+import { Container, Title, Stack, TextInput, Group, Table, Badge, ActionIcon, Tooltip, Pagination, Card, Text, FileInput, Button } from "@mantine/core";
+import { IconSearch, IconPlayerPlay, IconFileExport, IconFileImport } from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
 import Link from "next/link";
 import { searchGames } from "@/actions/games";
+import { importFenFile } from "@/actions/fen-import";
 import type { Game } from "@/lib/supabase/types";
 
 const resultColors: Record<string, string> = {
@@ -37,7 +39,26 @@ export default function ArchivePage() {
   return (
     <Container size="lg" py="xl">
       <Stack gap="xl">
-        <Title order={2}>Game Archive</Title>
+        <Group justify="space-between" align="end">
+          <Title order={2}>Game Archive</Title>
+          <FileInput
+            placeholder="Import FEN file"
+            accept=".fen,.txt"
+            leftSection={<IconFileImport size={16} />}
+            w={220}
+            size="sm"
+            onChange={async (file) => {
+              if (!file) return;
+              const content = await file.text();
+              const result = await importFenFile(content);
+              if (result.valid) {
+                notifications.show({ title: "FEN Imported", message: `${result.moveCount} positions loaded`, color: "green" });
+              } else {
+                notifications.show({ title: "Import failed", message: result.error ?? "Invalid FEN", color: "red" });
+              }
+            }}
+          />
+        </Group>
 
         <TextInput
           placeholder="Search by tournament, notes..."
