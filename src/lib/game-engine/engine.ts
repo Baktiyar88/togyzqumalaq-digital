@@ -194,11 +194,11 @@ function processCaptures(
       tuzdikNorth
     );
     if (canCreateTuzdik) {
-      // Capture the 3 stones and mark position as tuzdyk
-      captured = stonesInLastPit;
+      // Tuzdyk: capture 2 stones, pit keeps 1 as marker (matches Scala reference)
+      captured = stonesInLastPit - 1;
       board = setPit(board, lastPos, {
         piece: createTuzdik(movingSide),
-        count: 0,
+        count: 1,
       });
       tuzdikCreated = true;
 
@@ -301,14 +301,22 @@ function checkGameEnd(
     return { isOver: true, winner: "draw" };
   }
 
-  // No valid moves for next player
+  // No valid moves for next player — redistribute remaining stones
   const nextMoves = sidePositions(nextSide).filter(
     (i) => stonesAt(board, i) > 0
   );
   if (nextMoves.length === 0) {
-    // Remaining stones go to the side that has them
-    if (score.south > score.north) return { isOver: true, winner: "south" };
-    if (score.north > score.south) return { isOver: true, winner: "north" };
+    // Each player collects stones remaining on their own side (Scala reference)
+    const remainingSouth = sidePositions("south").reduce(
+      (acc, i) => acc + stonesAt(board, i), 0
+    );
+    const remainingNorth = sidePositions("north").reduce(
+      (acc, i) => acc + stonesAt(board, i), 0
+    );
+    const finalSouth = score.south + remainingSouth;
+    const finalNorth = score.north + remainingNorth;
+    if (finalSouth > finalNorth) return { isOver: true, winner: "south" };
+    if (finalNorth > finalSouth) return { isOver: true, winner: "north" };
     return { isOver: true, winner: "draw" };
   }
 

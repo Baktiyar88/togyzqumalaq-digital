@@ -53,8 +53,8 @@ export interface FenComponents {
   readonly scoreNorth: number;
   readonly side: Side;
   readonly moveNumber: number;
-  readonly tuzdikSouth: number | null; // pit index on north side (0-8)
-  readonly tuzdikNorth: number | null; // pit index on south side (0-8)
+  readonly tuzdikSouth: number | null; // absolute board index on north side (9-17)
+  readonly tuzdikNorth: number | null; // relative index on south side (0-8)
 }
 
 /** Result of executing a move */

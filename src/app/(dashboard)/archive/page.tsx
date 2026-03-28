@@ -6,10 +6,20 @@ import { DatePickerInput } from "@mantine/dates";
 import { IconSearch, IconPlayerPlay, IconFileExport, IconFileImport } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import Link from "next/link";
-import { searchGames } from "@/actions/games";
+import { searchGames, exportGameFen, exportGameJson } from "@/actions/games";
 import { importFenFile } from "@/actions/fen-import";
 import type { Game } from "@/lib/supabase/types";
 import type { GameResult } from "@/lib/supabase/types";
+
+function downloadText(content: string, filename: string) {
+  const blob = new Blob([content], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+}
 
 const resultColors: Record<string, string> = {
   white: "blue",
@@ -26,6 +36,7 @@ export default function ArchivePage() {
   const [dateFrom, setDateFrom] = useState<Date | null>(null);
   const [dateTo, setDateTo] = useState<Date | null>(null);
   const [resultFilter, setResultFilter] = useState<GameResult | null>(null);
+  const [opponent, setOpponent] = useState("");
   const [loading, setLoading] = useState(false);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -43,6 +54,7 @@ export default function ArchivePage() {
         setLoading(true);
         const result = await searchGames({
           tournament: query || undefined,
+          opponent: opponent || undefined,
           dateFrom: toIsoDate(dateFrom),
           dateTo: toIsoDate(dateTo),
           result: resultFilter ?? undefined,
@@ -58,7 +70,7 @@ export default function ArchivePage() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [page, query, dateFrom, dateTo, resultFilter]);
+  }, [page, query, opponent, dateFrom, dateTo, resultFilter]);
 
   const totalPages = Math.ceil(total / 20);
 
@@ -86,13 +98,21 @@ export default function ArchivePage() {
           />
         </Group>
 
-        <TextInput
-          placeholder="Search by tournament, notes..."
-          leftSection={<IconSearch size={16} />}
-          value={query}
-          onChange={(e) => { setQuery(e.currentTarget.value); setPage(1); }}
-          size="md"
-        />
+        <Group grow>
+          <TextInput
+            placeholder="Search by tournament, notes..."
+            leftSection={<IconSearch size={16} />}
+            value={query}
+            onChange={(e) => { setQuery(e.currentTarget.value); setPage(1); }}
+            size="md"
+          />
+          <TextInput
+            placeholder="Search by opponent name..."
+            value={opponent}
+            onChange={(e) => { setOpponent(e.currentTarget.value); setPage(1); }}
+            size="md"
+          />
+        </Group>
 
         <Group grow>
           <DatePickerInput
@@ -162,7 +182,18 @@ export default function ArchivePage() {
                         </ActionIcon>
                       </Tooltip>
                       <Tooltip label="Export FEN">
-                        <ActionIcon variant="subtle" size="sm">
+                        <ActionIcon
+                          variant="subtle"
+                          size="sm"
+                          onClick={async () => {
+                            const result = await exportGameFen(game.id);
+                            if ("fen" in result) {
+                              downloadText(result.fen, `game-${game.id.slice(0, 8)}.fen`);
+                            } else {
+                              notifications.show({ title: "Export failed", message: result.error, color: "red" });
+                            }
+                          }}
+                        >
                           <IconFileExport size={14} />
                         </ActionIcon>
                       </Tooltip>

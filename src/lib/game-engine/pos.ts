@@ -17,9 +17,12 @@ export function positionSide(index: number): Side {
   return index < BOARD_WIDTH ? "south" : "north";
 }
 
-/** Check if position is the last pit on its side */
+/** Check if position is pit 9 (kazan-adjacent) — cannot become tuzdik */
 export function isLastPit(index: number): boolean {
-  return index === BOARD_WIDTH - 1 || index === BOARD_SIZE - 1;
+  // South pit 9 = index 8, North pit 9 = index 9
+  // pitNumber: south = index+1, north = BOARD_SIZE-index
+  const pit = index < BOARD_WIDTH ? index + 1 : BOARD_SIZE - index;
+  return pit === BOARD_WIDTH;
 }
 
 /** Get the opposite position (directly across the board) */

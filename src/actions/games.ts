@@ -149,7 +149,23 @@ export async function searchGames(query: {
     .range(from, from + limit - 1);
 
   if (parsed.data.tournament) {
-    q = q.ilike("notes", `%${parsed.data.tournament}%`);
+    q = q.or(`notes.ilike.%${parsed.data.tournament}%`);
+  }
+
+  // Opponent filter: search profiles by name, then filter games by player IDs
+  if (parsed.data.opponent) {
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id")
+      .ilike("display_name", `%${parsed.data.opponent}%`)
+      .limit(50);
+    const ids = profiles?.map((p) => p.id) ?? [];
+    if (ids.length > 0) {
+      const idList = ids.join(",");
+      q = q.or(`white_player_id.in.(${idList}),black_player_id.in.(${idList})`);
+    } else {
+      return { games: [], total: 0 }; // no matching opponents
+    }
   }
 
   if (parsed.data.dateFrom) {

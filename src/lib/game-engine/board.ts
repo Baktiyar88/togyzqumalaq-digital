@@ -37,27 +37,26 @@ export function setPit(
   return next;
 }
 
-/** Create a new board with a pit emptied */
+/** Create a new board with a pit emptied (preserves piece role) */
 export function emptyPit(board: PieceMap, index: number): PieceMap {
   const next = new Map(board);
-  next.set(index, { piece: createStone(positionSide(index)), count: 0 });
+  const existing = board.get(index);
+  const piece = existing?.piece ?? createStone(positionSide(index));
+  next.set(index, { piece, count: 0 });
   return next;
 }
 
-/** Add stones to a pit */
+/** Add stones to a pit (preserves existing piece role) */
 export function addStones(
   board: PieceMap,
   index: number,
   amount: number
 ): PieceMap {
   const current = stonesAt(board, index);
-  const side = positionSide(index);
-  const role = board.get(index)?.piece.role ?? "stone";
+  const existing = board.get(index);
+  const piece = existing?.piece ?? createStone(positionSide(index));
   const next = new Map(board);
-  next.set(index, {
-    piece: { side, role },
-    count: current + amount,
-  });
+  next.set(index, { piece, count: current + amount });
   return next;
 }
 

@@ -17,18 +17,18 @@ import { positionSide } from "./pos";
  * Simplified:      9,9,9,9,9,9,9,9,9/9,9,9,9,9,9,9,9,9 0 0 S 1
  */
 
-/** Initial FEN string */
+/** Initial FEN string (Scala-compatible: countS for stones, t for tuzdik) */
 export const INITIAL_FEN =
-  "9,9,9,9,9,9,9,9,9/9,9,9,9,9,9,9,9,9 0 0 S 1";
+  "9S,9S,9S,9S,9S,9S,9S,9S,9S/9S,9S,9S,9S,9S,9S,9S,9S,9S 0 0 S 1";
 
-/** Convert game state to FEN string */
+/** Convert game state to FEN string (Scala-compatible format) */
 export function toFen(state: GameState): string {
   // South pits: indices 0-8 (A1 to I1)
   const southPits: string[] = [];
   for (let i = 0; i < BOARD_WIDTH; i++) {
     const count = stonesAt(state.board, i);
     const isTuzdik = state.tuzdikNorth === i; // north's tuzdik is on south's side
-    southPits.push(isTuzdik ? `${count}t` : `${count}`);
+    southPits.push(isTuzdik ? "t" : `${count}S`);
   }
 
   // North pits: indices 9-17 (I2 to A2, stored reversed)
@@ -36,7 +36,7 @@ export function toFen(state: GameState): string {
   for (let i = BOARD_WIDTH; i < BOARD_SIZE; i++) {
     const count = stonesAt(state.board, i);
     const isTuzdik = state.tuzdikSouth === i; // south's tuzdik is on north's side
-    northPits.push(isTuzdik ? `${count}t` : `${count}`);
+    northPits.push(isTuzdik ? "t" : `${count}S`);
   }
 
   const sideChar = state.currentSide === "south" ? "S" : "N";
@@ -78,10 +78,14 @@ export function parseFen(fen: string): FenComponents | null {
   const northTokens = ranks[1].split(",");
 
   southTokens.forEach((token, i) => {
-    if (token.includes("t")) tuzdikNorth = i; // north has tuzdik on south's pit i
+    if (token.toLowerCase() === "t" || token.endsWith("t")) {
+      tuzdikNorth = i; // north has tuzdik on south's pit i (0-8 relative)
+    }
   });
   northTokens.forEach((token, i) => {
-    if (token.includes("t")) tuzdikSouth = BOARD_WIDTH + i; // south has tuzdik on north's pit
+    if (token.toLowerCase() === "t" || token.endsWith("t")) {
+      tuzdikSouth = BOARD_WIDTH + i; // south has tuzdik on north's pit (absolute index 9-17)
+    }
   });
 
   return {
@@ -96,13 +100,19 @@ export function parseFen(fen: string): FenComponents | null {
   };
 }
 
-/** Parse a rank's pit values (e.g., "9,9,0t,9,9,9,9,9,9") */
+/** Parse a rank's pit values. Handles: "9S", "9", "t" (tuzdik = count 1), "0t" */
 function parsePits(rankStr: string): readonly number[] | null {
   const tokens = rankStr.split(",");
   const values: number[] = [];
 
   for (const token of tokens) {
-    const num = parseInt(token.replace(/[a-zA-Z]/g, ""), 10);
+    const trimmed = token.trim();
+    // Bare tuzdik marker (Scala writes just 't' for tuzdik with count 1)
+    if (trimmed.toLowerCase() === "t") {
+      values.push(1);
+      continue;
+    }
+    const num = parseInt(trimmed.replace(/[a-zA-Z]/g, ""), 10);
     if (isNaN(num) || num < 0) return null;
     values.push(num);
   }
