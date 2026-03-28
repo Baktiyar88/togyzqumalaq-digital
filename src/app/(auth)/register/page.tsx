@@ -6,11 +6,10 @@ import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { IconUserPlus } from "@tabler/icons-react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { serverRegister } from "@/actions/auth";
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
-  const supabase = createClient();
 
   const form = useForm({
     initialValues: { email: "", password: "", displayName: "", locale: "kk" },
@@ -23,21 +22,16 @@ export default function RegisterPage() {
 
   async function handleSubmit(values: typeof form.values) {
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
-      options: {
-        data: { display_name: values.displayName, locale: values.locale },
-      },
-    });
+    const result = await serverRegister(values.email, values.password, values.displayName, values.locale);
     setLoading(false);
 
-    if (error) {
-      notifications.show({ title: "Registration failed", message: error.message, color: "red" });
+    if (!result.success) {
+      notifications.show({ title: "Registration failed", message: result.error ?? "Unknown error", color: "red" });
       return;
     }
 
-    notifications.show({ title: "Success", message: "Check your email to confirm", color: "green" });
+    notifications.show({ title: "Success", message: "Account created! You can now sign in.", color: "green" });
+    window.location.href = "/login";
   }
 
   return (

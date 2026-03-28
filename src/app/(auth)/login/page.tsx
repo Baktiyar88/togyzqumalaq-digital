@@ -6,11 +6,10 @@ import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { IconLogin } from "@tabler/icons-react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { serverLogin } from "@/actions/auth";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
-  const supabase = createClient();
 
   const form = useForm({
     initialValues: { email: "", password: "" },
@@ -22,15 +21,16 @@ export default function LoginPage() {
 
   async function handleSubmit(values: typeof form.values) {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword(values);
+    const result = await serverLogin(values.email, values.password);
     setLoading(false);
 
-    if (error) {
-      notifications.show({ title: "Login failed", message: error.message, color: "red" });
+    if (!result.success) {
+      notifications.show({ title: "Login failed", message: result.error ?? "Unknown error", color: "red" });
       return;
     }
 
-    window.location.href = "/upload";
+    notifications.show({ title: "Success", message: "Logged in!", color: "green" });
+    window.location.href = "/manual";
   }
 
   return (
