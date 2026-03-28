@@ -62,9 +62,10 @@ export function parseFen(fen: string): FenComponents | null {
   const scoreSouth = parseInt(scoreSouthStr, 10);
   const scoreNorth = parseInt(scoreNorthStr, 10);
   if (isNaN(scoreSouth) || isNaN(scoreNorth)) return null;
+  if (scoreSouth < 0 || scoreNorth < 0) return null;
 
-  const side: Side = sideStr === "S" ? "south" : sideStr === "N" ? "north" : null as never;
-  if (!side) return null;
+  if (sideStr !== "S" && sideStr !== "N") return null;
+  const side: Side = sideStr === "S" ? "south" : "north";
 
   const moveNumber = parseInt(moveStr, 10);
   if (isNaN(moveNumber) || moveNumber < 1) return null;

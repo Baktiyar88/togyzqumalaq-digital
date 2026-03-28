@@ -2,12 +2,18 @@
 
 import { createServerSupabase } from "@/lib/supabase/server";
 import { recognizeScoresheet } from "@/lib/ocr/ocr-client";
+import { ocrRequestSchema } from "@/schemas/ocr";
 import type { ParsedMove } from "@/lib/ocr/types";
 
 const OCR_RATE_LIMIT = 60; // per hour per user
 const OCR_RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
 export async function triggerOCR(fileUrl: string): Promise<{ jobId: string; moves: ParsedMove[]; confidence: number } | { error: string }> {
+  const parsed = ocrRequestSchema.safeParse({ fileUrl });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid file URL" };
+  }
+
   const supabase = await createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };

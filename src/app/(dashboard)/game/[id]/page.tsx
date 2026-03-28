@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Container, Title, Grid, Stack, Loader, Center, Alert } from "@mantine/core";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { useParams } from "next/navigation";
@@ -54,6 +54,7 @@ export default function GameReplayPage() {
   const gameId = params.id as string;
 
   const [replay, setReplay] = useState<ReplayState | null>(null);
+  const replayRef = useRef<ReplayState | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,6 +68,7 @@ export default function GameReplayPage() {
         return;
       }
       const r = buildReplay(result.moves as GameMove[]);
+      replayRef.current = r;
       setReplay(r);
       setLoading(false);
     }
@@ -76,13 +78,15 @@ export default function GameReplayPage() {
   const goFirst = useCallback(() => setCurrentIndex(0), []);
   const goPrev = useCallback(() => setCurrentIndex((i) => Math.max(0, i - 1)), []);
   const goNext = useCallback(() => {
-    if (!replay) return;
-    setCurrentIndex((i) => Math.min(replay.states.length - 1, i + 1));
-  }, [replay]);
+    const r = replayRef.current;
+    if (!r) return;
+    setCurrentIndex((i) => Math.min(r.states.length - 1, i + 1));
+  }, []);
   const goLast = useCallback(() => {
-    if (!replay) return;
-    setCurrentIndex(replay.states.length - 1);
-  }, [replay]);
+    const r = replayRef.current;
+    if (!r) return;
+    setCurrentIndex(r.states.length - 1);
+  }, []);
 
   if (loading) {
     return (

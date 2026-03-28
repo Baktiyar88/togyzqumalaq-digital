@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/supabase/:path*",
-        destination: "https://a1-supabase-mmanassov89-mmanassov89.dedicatedapp.alem.ai/:path*",
+        destination: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/:path*`,
       },
     ];
   },

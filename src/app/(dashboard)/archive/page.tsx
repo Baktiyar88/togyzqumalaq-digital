@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Container, Title, Stack, TextInput, Group, Table, Badge, ActionIcon, Tooltip, Pagination, Card, Text, FileInput, Button } from "@mantine/core";
 import { IconSearch, IconPlayerPlay, IconFileExport, IconFileImport } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
@@ -23,15 +23,25 @@ export default function ArchivePage() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const result = await searchGames({ tournament: query || undefined, page });
-      setGames(result.games);
-      setTotal(result.total);
-      setLoading(false);
-    }
-    load();
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(() => {
+      async function load() {
+        setLoading(true);
+        const result = await searchGames({ tournament: query || undefined, page });
+        setGames(result.games);
+        setTotal(result.total);
+        setLoading(false);
+      }
+      load();
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, [page, query]);
 
   const totalPages = Math.ceil(total / 20);

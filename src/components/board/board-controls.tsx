@@ -30,20 +30,38 @@ export function BoardControls({
 }: BoardControlsProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const currentIndexRef = useRef(currentIndex);
+  const totalMovesRef = useRef(totalMoves);
+
+  currentIndexRef.current = currentIndex;
+  totalMovesRef.current = totalMoves;
 
   useEffect(() => {
     if (isPlaying) {
       intervalRef.current = setInterval(() => {
+        if (currentIndexRef.current >= totalMovesRef.current) {
+          setIsPlaying(false);
+          return;
+        }
         onNext();
       }, 1000);
     }
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, [isPlaying, onNext]);
 
   useEffect(() => {
-    if (currentIndex >= totalMoves) setIsPlaying(false);
+    if (currentIndex >= totalMoves) {
+      setIsPlaying(false);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
   }, [currentIndex, totalMoves]);
 
   return (

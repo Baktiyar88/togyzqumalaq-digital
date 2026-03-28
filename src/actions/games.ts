@@ -3,7 +3,19 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createInitialState, executeMoveByPit } from "@/lib/game-engine/engine";
 import { toFen } from "@/lib/game-engine/fen";
+import { createGameSchema, searchGamesSchema } from "@/schemas/game";
+import { z } from "zod";
 import type { ParsedMove } from "@/lib/ocr/types";
+
+const saveMovesSchema = z.object({
+  gameId: z.string().uuid(),
+  moves: z.array(z.object({
+    moveNumber: z.number().int().min(1),
+    side: z.enum(["white", "black"]),
+    fromPit: z.number().int().min(1).max(9),
+    notation: z.string().optional(),
+  })).min(1, "At least one move is required"),
+});
 
 export async function createGame(input: {
   tournamentId?: string;
@@ -11,6 +23,11 @@ export async function createGame(input: {
   blackPlayerId: string;
   sourceType: "ocr" | "manual";
 }): Promise<{ gameId: string } | { error: string }> {
+  const parsed = createGameSchema.safeParse(input);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
   const supabase = await createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
@@ -37,6 +54,11 @@ export async function saveMoves(
   gameId: string,
   moves: ParsedMove[]
 ): Promise<{ success: boolean } | { error: string }> {
+  const parsed = saveMovesSchema.safeParse({ gameId, moves });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
   const supabase = await createServerSupabase();
 
   // Validate moves by replaying through engine
@@ -101,23 +123,30 @@ export async function searchGames(query: {
   page?: number;
   limit?: number;
 }) {
+  const parsed = searchGamesSchema.safeParse(query);
+  if (!parsed.success) {
+    return { games: [], total: 0 };
+  }
+
   const supabase = await createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { games: [], total: 0 };
 
-  const page = query.page ?? 1;
-  const limit = query.limit ?? 20;
+  const page = parsed.data.page;
+  const limit = parsed.data.limit;
   const from = (page - 1) * limit;
 
   let q = supabase
     .from("games")
     .select("*", { count: "exact" })
-    .or(`white_player_id.eq.${user.id},black_player_id.eq.${user.id},created_by.eq.${user.id}`)
+    .or(
+      `white_player_id.eq.${user.id},black_player_id.eq.${user.id},created_by.eq.${user.id}`
+    )
     .order("created_at", { ascending: false })
     .range(from, from + limit - 1);
 
-  if (query.tournament) {
-    q = q.ilike("notes", `%${query.tournament}%`);
+  if (parsed.data.tournament) {
+    q = q.ilike("notes", `%${parsed.data.tournament}%`);
   }
 
   const { data, count, error } = await q;

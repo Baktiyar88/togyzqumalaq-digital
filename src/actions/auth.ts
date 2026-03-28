@@ -1,21 +1,25 @@
 "use server";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+import { createServerSupabase } from "@/lib/supabase/server";
+import { loginSchema, registerSchema } from "@/schemas/auth";
 
-export async function serverLogin(email: string, password: string): Promise<{ success: boolean; error?: string }> {
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-    method: "POST",
-    headers: {
-      "apikey": SUPABASE_KEY,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password }),
+export async function serverLogin(
+  email: string,
+  password: string
+): Promise<{ success: boolean; error?: string }> {
+  const parsed = loginSchema.safeParse({ email, password });
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const supabase = await createServerSupabase();
+  const { error } = await supabase.auth.signInWithPassword({
+    email: parsed.data.email,
+    password: parsed.data.password,
   });
 
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    return { success: false, error: data.error_description ?? data.msg ?? "Login failed" };
+  if (error) {
+    return { success: false, error: error.message };
   }
 
   return { success: true };
@@ -27,22 +31,22 @@ export async function serverRegister(
   displayName: string,
   locale: string
 ): Promise<{ success: boolean; error?: string }> {
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
-    method: "POST",
-    headers: {
-      "apikey": SUPABASE_KEY,
-      "Content-Type": "application/json",
+  const parsed = registerSchema.safeParse({ email, password, displayName, locale });
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const supabase = await createServerSupabase();
+  const { error } = await supabase.auth.signUp({
+    email: parsed.data.email,
+    password: parsed.data.password,
+    options: {
+      data: { display_name: parsed.data.displayName, locale: parsed.data.locale },
     },
-    body: JSON.stringify({
-      email,
-      password,
-      data: { display_name: displayName, locale },
-    }),
   });
 
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    return { success: false, error: data.error_description ?? data.msg ?? "Registration failed" };
+  if (error) {
+    return { success: false, error: error.message };
   }
 
   return { success: true };

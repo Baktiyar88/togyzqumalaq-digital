@@ -35,22 +35,41 @@ export function MoveList({ moves, currentMoveIndex }: MoveListProps) {
         <Table.Tbody>
           <AnimatePresence>
             {moves.map((m, i) => (
-              <motion.tr
+              <Table.Tr
                 key={`${m.moveNumber}-${m.side}`}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.2, delay: i === moves.length - 1 ? 0 : 0 }}
                 style={{
                   backgroundColor: i === currentMoveIndex ? "var(--mantine-color-indigo-light)" : undefined,
                 }}
               >
-                <Table.Td>{m.moveNumber}</Table.Td>
                 <Table.Td>
-                  <Badge color={m.side === "south" ? "blue" : "orange"} size="sm" variant="light">
-                    {m.side}
-                  </Badge>
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {m.moveNumber}
+                  </motion.div>
                 </Table.Td>
-                <Table.Td>{m.pit}</Table.Td>
+                <Table.Td>
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Badge color={m.side === "south" ? "blue" : "orange"} size="sm" variant="light">
+                      {m.side}
+                    </Badge>
+                  </motion.div>
+                </Table.Td>
+                <Table.Td>
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {m.pit}
+                  </motion.div>
+                </Table.Td>
                 <Table.Td>
                   {m.captured > 0 && (
                     <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500 }}>
@@ -63,7 +82,7 @@ export function MoveList({ moves, currentMoveIndex }: MoveListProps) {
                     </motion.span>
                   )}
                 </Table.Td>
-              </motion.tr>
+              </Table.Tr>
             ))}
           </AnimatePresence>
         </Table.Tbody>

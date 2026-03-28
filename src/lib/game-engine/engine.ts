@@ -11,7 +11,7 @@ import {
   type PieceMap,
   type PitState,
 } from "./types";
-import { initialBoard, stonesAt, emptyPit, addStones } from "./board";
+import { initialBoard, stonesAt, emptyPit, addStones, setPit } from "./board";
 import { createStone, createTuzdik } from "./piece";
 import {
   positionSide,
@@ -56,6 +56,10 @@ export function executeMove(
   // Validate
   if (state.isGameOver) {
     return { state, captured: 0, tuzdikCreated: false, error: "Game is over" };
+  }
+
+  if (fromIndex < 0 || fromIndex >= BOARD_SIZE) {
+    return { state, captured: 0, tuzdikCreated: false, error: "Invalid pit index" };
   }
 
   const side = state.currentSide;
@@ -190,15 +194,12 @@ function processCaptures(
       tuzdikNorth
     );
     if (canCreateTuzdik) {
-      // Mark as tuzdyk — belongs to the moving side
-      const pitSide = positionSide(lastPos);
-      board = new Map(board);
-      (board as Map<number, PitState>).set(lastPos, {
-        piece: createTuzdik(movingSide),
-        count: stonesInLastPit,
-      });
+      // Capture the 3 stones and mark position as tuzdyk
       captured = stonesInLastPit;
-      board = emptyPit(board, lastPos);
+      board = setPit(board, lastPos, {
+        piece: createTuzdik(movingSide),
+        count: 0,
+      });
       tuzdikCreated = true;
 
       if (movingSide === "south") {

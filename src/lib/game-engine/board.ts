@@ -4,7 +4,6 @@ import {
   INITIAL_STONES_PER_PIT,
   type PieceMap,
   type PitState,
-  type Score,
   type Side,
 } from "./types";
 import { createStone } from "./piece";
