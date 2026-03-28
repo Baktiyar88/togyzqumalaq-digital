@@ -1,0 +1,12 @@
+{
+  "app": { "title": "Тоғызқұмалақ Digital", "description": "Турнир бланкілерін цифрландыру" },
+  "nav": { "upload": "Жүктеу", "manual": "Қолмен енгізу", "archive": "Мұрағат", "profile": "Профиль", "login": "Кіру", "register": "Тіркелу", "logout": "Шығу" },
+  "upload": { "title": "Бланк жүктеу", "dropzone": "Файлды сүйреңіз немесе басыңыз", "formats": "JPEG, PNG, PDF — 20МБ дейін", "process": "Өңдеу", "processing": "Өңделуде..." },
+  "ocr": { "results": "Нәтижелер", "confidence": "Сенімділік", "edit": "Өңдеу", "confirm": "Растау", "retry": "Қайталау" },
+  "manual": { "title": "Қолмен енгізу", "pit": "Ұяшық", "side": "Жақ", "move": "Жүріс", "submit": "Жүру" },
+  "board": { "south": "Оңтүстік", "north": "Солтүстік", "kazan": "Қазан", "tuzdik": "Тұздық", "stones": "тас" },
+  "archive": { "title": "Мұрағат", "search": "Іздеу", "opponent": "Қарсылас", "tournament": "Турнир", "date": "Күн", "result": "Нәтиже" },
+  "game": { "replay": "Қайта ойнау", "export": "Экспорт", "fen": "FEN", "first": "Басы", "prev": "Алдыңғы", "next": "Келесі", "last": "Соңғы" },
+  "auth": { "email": "Электрондық пошта", "password": "Құпия сөз", "name": "Аты-жөні", "club": "Клуб", "language": "Тіл" },
+  "common": { "save": "Сақтау", "cancel": "Болдырмау", "delete": "Жою", "loading": "Жүктелуде...", "error": "Қате", "success": "Сәтті" }
+}

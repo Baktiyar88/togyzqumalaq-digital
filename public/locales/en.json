@@ -1,0 +1,12 @@
+{
+  "app": { "title": "Togyzqumalaq Digital", "description": "Digitize tournament scoresheets" },
+  "nav": { "upload": "Upload", "manual": "Manual Entry", "archive": "Archive", "profile": "Profile", "login": "Sign In", "register": "Sign Up", "logout": "Sign Out" },
+  "upload": { "title": "Upload Scoresheet", "dropzone": "Drag & drop file or click", "formats": "JPEG, PNG, PDF — up to 20MB", "process": "Process", "processing": "Processing..." },
+  "ocr": { "results": "Results", "confidence": "Confidence", "edit": "Edit", "confirm": "Confirm", "retry": "Retry" },
+  "manual": { "title": "Manual Entry", "pit": "Pit", "side": "Side", "move": "Move", "submit": "Make Move" },
+  "board": { "south": "South", "north": "North", "kazan": "Kazan", "tuzdik": "Tuzdik", "stones": "stones" },
+  "archive": { "title": "Game Archive", "search": "Search", "opponent": "Opponent", "tournament": "Tournament", "date": "Date", "result": "Result" },
+  "game": { "replay": "Replay", "export": "Export", "fen": "FEN", "first": "First", "prev": "Previous", "next": "Next", "last": "Last" },
+  "auth": { "email": "Email", "password": "Password", "name": "Name", "club": "Club", "language": "Language" },
+  "common": { "save": "Save", "cancel": "Cancel", "delete": "Delete", "loading": "Loading...", "error": "Error", "success": "Success" }
+}

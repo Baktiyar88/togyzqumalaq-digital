@@ -1,0 +1,12 @@
+{
+  "app": { "title": "Тоғызқұмалақ Digital", "description": "Оцифровка турнирных бланков" },
+  "nav": { "upload": "Загрузка", "manual": "Ручной ввод", "archive": "Архив", "profile": "Профиль", "login": "Вход", "register": "Регистрация", "logout": "Выход" },
+  "upload": { "title": "Загрузка бланка", "dropzone": "Перетащите файл или нажмите", "formats": "JPEG, PNG, PDF — до 20МБ", "process": "Обработать", "processing": "Обработка..." },
+  "ocr": { "results": "Результаты", "confidence": "Уверенность", "edit": "Редактировать", "confirm": "Подтвердить", "retry": "Повторить" },
+  "manual": { "title": "Ручной ввод", "pit": "Лунка", "side": "Сторона", "move": "Ход", "submit": "Сделать ход" },
+  "board": { "south": "Юг", "north": "Север", "kazan": "Казан", "tuzdik": "Тұздық", "stones": "камней" },
+  "archive": { "title": "Архив партий", "search": "Поиск", "opponent": "Соперник", "tournament": "Турнир", "date": "Дата", "result": "Результат" },
+  "game": { "replay": "Воспроизведение", "export": "Экспорт", "fen": "FEN", "first": "В начало", "prev": "Назад", "next": "Вперёд", "last": "В конец" },
+  "auth": { "email": "Электронная почта", "password": "Пароль", "name": "Имя", "club": "Клуб", "language": "Язык" },
+  "common": { "save": "Сохранить", "cancel": "Отмена", "delete": "Удалить", "loading": "Загрузка...", "error": "Ошибка", "success": "Успешно" }
+}
