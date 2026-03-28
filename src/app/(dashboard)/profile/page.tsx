@@ -21,7 +21,10 @@ export default function ProfilePage() {
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       const { data } = await supabase
         .from("profiles")
@@ -60,6 +63,17 @@ export default function ProfilePage() {
   }
 
   if (loading) return <Center h={400}><Loader /></Center>;
+
+  if (!profile) {
+    return (
+      <Container size="sm" py="xl">
+        <Title order={2} mb="xl">Profile</Title>
+        <Card withBorder padding="lg" radius="md">
+          <Text c="dimmed" ta="center">Please sign in to view your profile.</Text>
+        </Card>
+      </Container>
+    );
+  }
 
   return (
     <Container size="sm" py="xl">

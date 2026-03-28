@@ -48,7 +48,7 @@ export default function HomePage() {
         </Group>
         <Group gap="sm">
           <LanguageSwitch />
-          <ActionIcon variant="subtle" size="lg" onClick={toggleColorScheme}>
+          <ActionIcon variant="subtle" size="lg" onClick={toggleColorScheme} aria-label="Toggle theme">
             {colorScheme === "dark" ? <IconSun size={18} /> : <IconMoon size={18} />}
           </ActionIcon>
           {isLoggedIn ? (
